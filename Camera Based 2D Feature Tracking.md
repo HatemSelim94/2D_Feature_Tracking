@@ -30,6 +30,7 @@
 | AKAZE      | 167        | 12                         |  scattered in a certain area |
 
 P.V.K: Keypoints detected on the preceding vehicle.
+
 T.D.K: Total detected keypoints. 
 ___
 
