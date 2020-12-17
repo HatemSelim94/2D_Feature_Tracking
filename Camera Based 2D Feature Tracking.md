@@ -28,6 +28,7 @@
 | BRISK      | 276        | 10                         |   some clusters and overlapping |
 | ORB        | 116        | 23                         | some clusters and overlapping |
 | AKAZE      | 167        | 12                         |  scattered in a certain area |
+
 P.V.K: Keypoints detected on the preceding vehicle.
 T.D.K: Total detected keypoints. 
 ___
