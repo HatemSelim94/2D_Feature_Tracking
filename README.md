@@ -1,34 +1,77 @@
-# SFND 2D Feature Tracking
+# Udacity Sensor Fusion Nanodegree
 
-<img src="images/keypoints.png" width="820" height="248" />
+## Data Buffer Optimization
+- STL C++ container [deque](https://en.wikipedia.org/wiki/Double-ended_queue) is used to implement the data buffer.
+## Keypoint Detection
+- SHITOMASI, HARRIS, FAST, BRISK, ORB, AKAZE, and SIFT detectors are utilized for features detection and made selectable by setting a string accordingly.
+## Keypoint Removal
+- All keypoints outside of a pre-defined rectangle(preceding vehicle) are removed and only the keypoints within the rectangle are considered for further processing.
+## Keypoint Descriptors
+* BRISK, BRIEF, ORB, FREAK, AKAZE and SIFT descriptors  implemented and made selectable by setting a string accordingly.
+## Descriptor Matching
+* FLANN matching as well as k-nearest neighbor selection are implemented. Both methods are selectable using the respective strings in the main function.
+* In the Brute force matching, the metric used for matching keypoints is L2 norm for HOG based descriptors(SIFT) and Hamming distance for binary based descriptors(BRIEF, BRISK, ...etc).
+## Descriptor Distance Ratio
+* The 2-Nearest-Neighbor underwent the ratio test, to decide whether the 1-NN is much better than the 2-NN and can be selected as a match or there are many ambigous similar matches and thus 1-NN can be rejected.
 
-The idea of the camera course is to build a collision detection system - that's the overall goal for the Final Project. As a preparation for this, you will now build the feature tracking part and test various detector / descriptor combinations to see which ones perform best. This mid-term project consists of four parts:
 
-* First, you will focus on loading images, setting up data structures and putting everything into a ring buffer to optimize memory load. 
-* Then, you will integrate several keypoint detectors such as HARRIS, FAST, BRISK and SIFT and compare them with regard to number of keypoints and speed. 
-* In the next part, you will then focus on descriptor extraction and matching using brute force and also the FLANN approach we discussed in the previous lesson. 
-* In the last part, once the code framework is complete, you will test the various algorithms in different combinations and compare them with regard to some performance measures. 
+## Performance Evaluation 1
 
-See the classroom instruction and code comments for more details on each of these parts. Once you are finished with this project, the keypoint matching part will be set up and you can proceed to the next lesson, where the focus is on integrating Lidar points and on object detection using deep-learning. 
 
-## Dependencies for Running Locally
-* cmake >= 2.8
-  * All OSes: [click here for installation instructions](https://cmake.org/install/)
-* make >= 4.1 (Linux, Mac), 3.81 (Windows)
-  * Linux: make is installed by default on most Linux distros
-  * Mac: [install Xcode command line tools to get make](https://developer.apple.com/xcode/features/)
-  * Windows: [Click here for installation instructions](http://gnuwin32.sourceforge.net/packages/make.htm)
-* OpenCV >= 4.1
-  * This must be compiled from source using the `-D OPENCV_ENABLE_NONFREE=ON` cmake flag for testing the SIFT and SURF detectors.
-  * The OpenCV 4.1.0 source code can be found [here](https://github.com/opencv/opencv/tree/4.1.0)
-* gcc/g++ >= 5.4
-  * Linux: gcc / g++ is installed by default on most Linux distros
-  * Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
-  * Windows: recommend using [MinGW](http://www.mingw.org/)
+#### Number of keypoints detected on the preceding vehicle:
+| Detector   | avg. P.V.K | avg. P.V.K/ avg. T.D.K (%) |Notes on the keypoints |
+|------------|------------|----------------------------|---------|
+| SHI-TOMASI | 118        | 9                          |  well distributed  |
+| HARRIS     | 25         | 15                         |  well distributed (zero overlapping) |
+| SIFT       | 139        | 10                         |   well distributed  |
+| FAST       | 149        | 8                          |  some clusters and overlapping  | 
+| BRISK      | 276        | 10                         |   some clusters and overlapping |
+| ORB        | 116        | 23                         | some clusters and overlapping |
+| AKAZE      | 167        | 12                         |  scattered in a certain area |
 
-## Basic Build Instructions
+P.V.K: Keypoints detected on the preceding vehicle.
 
-1. Clone this repo.
-2. Make a build directory in the top level directory: `mkdir build && cd build`
-3. Compile: `cmake .. && make`
-4. Run it: `./2D_feature_tracking`.
+T.D.K: Total detected keypoints. 
+___
+
+![SHI-TOMASI](images/detectors/SHITOMASI/SHITOMASI_0.JPEG)
+
+![HARRIS](images/detectors/HARRIS/HARRIS_0.JPEG)
+
+![SIFT](images/detectors/SIFT/SIFT_0.JPEG)
+
+![FAST](images/detectors/FAST/FAST_0.JPEG)
+
+![BRISK](images/detectors/BRISK/BRISK_0.JPEG)
+
+![ORB](images/detectors/ORB/ORB_0.JPEG)
+
+![AKAZE](images/detectors/AKAZE/AKAZE_0.JPEG)
+
+
+## Performance Evaluation 2
+
+#### Average number of matched keypoints:
+| Detector\Descriptor | BRISK | BRIEF | ORB | FREAK | AKAZE | SIFT |
+|---------------------|:-----:|:-----:|:---:|:-----:|:-----:|:----:|
+| SHI-TOMASI           |   85  |  105  | 101 |   85  |   _   |  103 |
+| HARRIS              |   16  |   19  |  18 |   16  |   _   |  18  |
+| SIFT                |   66  |   78  |  _  |   66  |   _   |  89  |
+| FAST                |  100  |  122  | 120 |   98  |   _   |  116 |
+| BRISK               |  174  |  189  | 168 |  170  |   _   |  183 |
+| ORB                 |   83  |   61  |  85 |   47  |   _   |  85  |
+| AKAZE               |  135  |  141  | 132 |  132  |  140  |  141 |
+
+## Performance Evaluation 3
+#### Average detector/descriptor processing time:
+| Detector\Descriptor | BRISK | BRIEF |  ORB | FREAK | AKAZE |  SIFT |
+|---------------------|:-----:|:-----:|:----:|:-----:|:-----:|:-----:|
+| SHI-TOMASI          |  14.8 |  13.5 | 15.8 |   32  |   _   |  29.5 |
+| HARRIS              |  14.8 |   14  | 16.2 |  32.7 |   _   |  29.2 |
+| SIFT                |  76.7 |  76.2 |   _  |  95.3 |   _   | 126.9 |
+| FAST                |  2.7  |  1.7  |  3.5 |  23.4 |   _   |  16.7 |
+| BRISK               |  64.4 |  61.1 | 71.5 |  85.2 |   _   |  85.1 |
+| ORB                 |  9.1  |   8   | 17.3 |  30.3 |   _   |  32.4 |
+| AKAZE               |  63.4 |   61  | 69.1 |  80.5 |  12.9 |   73  |
+
+As expected the binary based detectors/descriptors required less processing time. Based on the recoreded data, The best three detector/descriptor combinations with respect to the total processing time are FAST|BRIEF, FAST|BRISK, and FAST|ORB. 
